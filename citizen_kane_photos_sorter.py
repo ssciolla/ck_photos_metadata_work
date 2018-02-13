@@ -23,12 +23,14 @@ def extract_date_and_time(field_content):
         return date_and_time
 
 def systematize_date(date):
-    months = {"AUG": '8', "SEP": "9", "OCT": "10", "NOV": "11", "DEC": "12", "JAN": "1"}
+    months = {"AUG": '08', "SEP": "09", "OCT": "10", "NOV": "11", "DEC": "12", "JAN": "01"}
     tokens = nltk.word_tokenize(date)
     if "-" in date:
         for word in tokens:
             if "-" in word:
                 month = word[:-3]
+                if len(month) == 1:
+                    month = "0" + month
                 year = word[-2:]
                 new_string = "19" + year + "-" + month
                 return new_string
@@ -38,6 +40,8 @@ def systematize_date(date):
         for word in tokens:
             if word[0] in string.digits and ":" not in word:
                 day = word
+                if len(day) == 1:
+                    day = "0" + day
                 break
         if "AM" in date:
             am_or_pm = "AM"
@@ -46,7 +50,10 @@ def systematize_date(date):
         if ":" in date:
             for word in tokens:
                 if ":" in word:
-                    time = "-" + word
+                    time = word
+                    if len(time) == 4:
+                        time = "0" + time
+                    time = "-" + time
         else:
             time = ""
         new_string = "1940-{}-{}-{}{}".format(month, day, am_or_pm, time)
@@ -104,11 +111,10 @@ for row in rows_sorted_by_set_and_date:
     index += 1
     if row[0] != last_row_set_value and last_row_set_value != "first":
         photo_num = 0
-    photo_num += 1
-    print(photo_num)
     if row[headers.index("Prints (#)")] == '0':
         unique_identifier = "TBD"
     else:
+        photo_num += 1
         unique_identifier = "{}-{}-P".format(row[0], photo_num)
     rows_sorted_by_set_and_date[index] = [unique_identifier] + row
     last_row_set_value = row[0]
